@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Новости</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        .news-container {
+            height: 400px;
+            overflow-y: auto;
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin-bottom: 20px;
+            background-color: #f9f9f9;
+        }
+        .news-item {
+            margin-bottom: 15px;
+        }
+        .news-title {
+            font-weight: bold;
+        }
+        .news-date {
+            color: #666;
+            font-size: 0.9em;
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+<div class="container">
+    <h1>Анализ новостей</h1>
+
+    <!-- Форма для парсинга новостей -->
+    <form method="POST">
+        <div class="form-group">
+            <label for="search_query">Поисковый запрос:</label>
+            <input type="text" class="form-control" id="search_query" name="search_query">
+        </div>
+        <div class="form-group">
+            <label for="news_count">Количество новостей:</label>
+            <input type="number" class="form-control" id="news_count" name="news_count">
+        </div>
+        <button type="submit" name="extract" class="btn btn-primary">Извлечь новости</button>
+        <button type="submit" name="plot" class="btn btn-secondary">Отрисовать график</button>
+    </form>
+
+
+
+    <!-- Отображение новостей -->
+    <div class="news-container">
+        <h2>Новости:</h2>
+        {% for news in news_data %}
+            <div class="news-item">
+                <div class="news-title">{{ news.title }}</div>
+                <div class="news-text">{{ news.text }}</div>
+                <div class="news-date">{{ news.date }}</div>
+                {% if news.link %}
+                    <div class="news-source">
+                         <a href="{{ news.link }}" target="_blank" style="color: blue;">Источник</a>
+                    </div>
+                {% endif %}
+            </div>
+        {% endfor %}
+    </div>
+
+    <!-- Моделирование новости -->
+    <h3>Моделирование новости</h3>
+    <form method="POST">
+        <div class="form-group">
+            <textarea class="form-control" id="simulated_text" name="simulated_text" rows="4"></textarea>
+        </div>
+        <button type="submit" name="simulate" class="btn btn-warning">Смоделировать и отрисовать график</button>
+    </form>
+
+    <hr>
+
+    <!-- График реакций пользователей -->
+    {% if plot_data %}
+        <h3>Динамика реакций пользователей</h3>
+        <canvas id="predictionsChart" width="600" height="400"></canvas>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const ctx = document.getElementById('predictionsChart').getContext('2d');
+                const plotData = JSON.parse('{{ plot_data | safe }}');
+
+                const data = {
+                    labels: plotData.dates,
+                    datasets: [{
+                        label: 'Значение',
+                        data: plotData.predictions,
+                        fill: false,
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        tension: 0.1,
+                        pointBackgroundColor: 'rgba(255, 99, 132, 1)',
+                        pointRadius: 5,
+                        pointHoverRadius: 7,
+                        pointHoverBackgroundColor: 'rgba(255, 159, 64, 1)',
+                    }]
+                };
+
+                const config = {
+                    type: 'line',
+                    data: data,
+                    options: {
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                min: -1,
+                                max: 1
+                            }
+                        },
+                        plugins: {
+                            tooltip: {
+                                callbacks: {
+                                    title: function(tooltipItems) {
+                                        const index = tooltipItems[0].dataIndex;
+                                        return plotData.titles[index];
+                                    }
+                                }
+                            }
+                        }
+                    }
+                };
+
+                const predictionsChart = new Chart(ctx, config);
+            });
+        </script>
+    {% endif %}
+</div>
+
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,5 @@
+.idea/
+__pycache__/
+model_regr_v2.pth
+model_regr_v1.pth
+.env
