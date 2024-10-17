@@ -20,13 +20,26 @@ MONTHS = {
 embedding_model = SentenceTransformer('sergeyzh/rubert-tiny-turbo')
 
 
-def cosine_similarity_check(query_embedding, title_embedding, threshold=0.8):
+def cosine_similarity_check(query_embedding, title_embedding, threshold=0.8) -> bool:
+    """
+    Вычисление косинусного расстояния между эмбеддингами запроса и заголовка
+    :param query_embedding: эмбеддинг запроса
+    :param title_embedding: эмбеддинг заголовка
+    :param threshold: порог расстояния
+    :return: bool: True, если расстояние больше порога; Falase если меньше
+    """
     similarity = cosine_similarity([query_embedding], [title_embedding])[0][0]
 
     return similarity >= threshold
 
 
 def extract(search_query: str, news_count: int) -> None:
+    """
+    Извлечение и сохранение поискового результата в JSON файл
+    :param search_query: пользовательский запрос
+    :param news_count: количество новостей, которые необходимо получить
+    :return: None
+    """
     chrome_options = Options()
     chrome_options.add_argument("--headless=old")
     chrome_options.add_argument("--no-sandbox")
@@ -34,7 +47,6 @@ def extract(search_query: str, news_count: int) -> None:
     chrome_options.add_argument("--disable-gpu")
     chrome_options.add_argument("--window-size=1920x1080")
     chrome_options.add_argument("--disable-extensions")
-
 
     driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=chrome_options)
 
